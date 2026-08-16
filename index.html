@@ -220,8 +220,8 @@
     /* ---------- Grilla de series ---------- */
     .grid-catalogo {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
       max-width: 1300px;
       margin: 0 auto;
     }
@@ -245,9 +245,11 @@
 
     .tarjeta-serie img {
       width: 100%;
-      height: 270px;
+      height: auto;
+      aspect-ratio: 2 / 3;
       object-fit: cover;
       background-color: #0d0d0d;
+      display: block;
     }
 
     .badge-temporadas {
@@ -266,7 +268,7 @@
     }
 
     .info {
-      padding: 12px;
+      padding: 10px;
       text-align: center;
       display: flex;
       flex-direction: column;
@@ -274,14 +276,14 @@
     }
 
     .titulo {
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 600;
       line-height: 1.3;
       word-wrap: break-word;
     }
 
     .anio {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: var(--muted-color);
       margin-top: 4px;
     }
@@ -323,6 +325,49 @@
       color: var(--muted-color);
       margin-top: 40px;
       display: none;
+    }
+
+    /* ---------- Paginación ---------- */
+    #paginacion {
+      max-width: 1300px;
+      margin: 28px auto 10px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    #paginacion.oculta {
+      display: none;
+    }
+
+    .boton-pagina {
+      padding: 9px 18px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: border-color 0.15s ease, color 0.15s ease;
+    }
+
+    .boton-pagina:hover:not(:disabled) {
+      border-color: var(--accent-color);
+      color: var(--accent-color);
+    }
+
+    .boton-pagina:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    #info-pagina {
+      color: var(--muted-color);
+      font-size: 0.85rem;
+      min-width: 140px;
+      text-align: center;
     }
 
     /* ---------- Modal de temporadas ---------- */
@@ -452,6 +497,87 @@
         text-align: center;
       }
     }
+
+    /* ---------- Responsivo: celulares ---------- */
+    @media (max-width: 640px) {
+      body {
+        padding: 10px;
+      }
+
+      h1 {
+        font-size: 1.35rem;
+      }
+
+      .subtitulo {
+        font-size: 0.8rem;
+      }
+
+      .barra-superior {
+        gap: 8px;
+      }
+
+      #buscador {
+        flex: 1 1 100%;
+        max-width: none;
+      }
+
+      .grid-catalogo {
+        grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
+        gap: 10px;
+      }
+
+      .info {
+        padding: 7px;
+      }
+
+      .titulo {
+        font-size: 0.75rem;
+        line-height: 1.2;
+      }
+
+      .anio {
+        font-size: 0.68rem;
+      }
+
+      .badge-temporadas {
+        font-size: 0.55rem;
+        padding: 2px 6px;
+        top: 5px;
+        right: 5px;
+      }
+
+      .boton-telegram {
+        font-size: 0.65rem;
+        padding: 5px 6px;
+        gap: 4px;
+        margin-top: 6px;
+      }
+
+      .boton-telegram svg {
+        width: 11px;
+        height: 11px;
+      }
+
+      .modal-contenido {
+        padding: 18px;
+      }
+
+      .modal-poster {
+        width: 120px;
+        height: 180px;
+      }
+
+      .modal-titulo {
+        font-size: 1.2rem;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .grid-catalogo {
+        grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+        gap: 8px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -510,6 +636,12 @@
   <div id="catalogo" class="grid-catalogo"></div>
   <p id="sin-resultados">No se encontraron series con esos filtros.</p>
 
+  <div id="paginacion" class="oculta">
+    <button class="boton-pagina" id="btn-pagina-anterior" type="button">← Anterior</button>
+    <span id="info-pagina"></span>
+    <button class="boton-pagina" id="btn-pagina-siguiente" type="button">Siguiente →</button>
+  </div>
+
   <!-- Modal de temporadas -->
   <div id="modal-overlay">
     <div class="modal-contenido">
@@ -542,8 +674,15 @@
     // propio visitante quien decide enviarlo desde su cuenta de Telegram.
     const TELEGRAM_BOT_USERNAME = "melografia_bot";
 
+    // Cuántas tarjetas se muestran por página. Pensado para que, al incrustar
+    // el sitio en un iframe (ej. un módulo de Divi), no se rendericen todas
+    // las series de una sola vez.
+    const ITEMS_POR_PAGINA = 30;
+
     let series = [];
     let tarjetasPorId = new Map();
+    let resultadoFiltrado = []; // resultado actual (filtrado + ordenado), sin paginar
+    let paginaActual = 1;
 
     const filtros = {
       texto: "",
@@ -702,8 +841,8 @@
 
       const estudios = [...new Set(series.map(s => s.studio).filter(Boolean))].sort();
 
-      construirChips('opciones-clasificacion', clasificaciones, filtros.clasificaciones, aplicarFiltros);
-      construirChips('opciones-resolucion', resoluciones, filtros.resoluciones, aplicarFiltros);
+      construirChips('opciones-clasificacion', clasificaciones, filtros.clasificaciones, () => { paginaActual = 1; aplicarFiltros(); });
+      construirChips('opciones-resolucion', resoluciones, filtros.resoluciones, () => { paginaActual = 1; aplicarFiltros(); });
 
       const datalist = document.getElementById('lista-estudios');
       datalist.innerHTML = estudios.map(e => `<option value="${e}">`).join('');
@@ -738,7 +877,7 @@
       return copia;
     }
 
-    // ---------- Aplicar todos los filtros + orden ----------
+    // ---------- Aplicar todos los filtros + orden (recalcula el set completo) ----------
     function aplicarFiltros() {
       let resultado = series.filter(s => {
         if (filtros.texto) {
@@ -754,21 +893,54 @@
         return true;
       });
 
-      resultado = ordenarSeries(resultado);
+      resultadoFiltrado = ordenarSeries(resultado);
+      renderizarPagina();
+      actualizarContadorFiltrosActivos();
+    }
+
+    // ---------- Renderizar solo la página actual (no recalcula filtros) ----------
+    function renderizarPagina() {
+      const totalItems = resultadoFiltrado.length;
+      const totalPaginas = Math.max(1, Math.ceil(totalItems / ITEMS_POR_PAGINA));
+
+      if (paginaActual > totalPaginas) paginaActual = totalPaginas;
+      if (paginaActual < 1) paginaActual = 1;
+
+      const inicio = (paginaActual - 1) * ITEMS_POR_PAGINA;
+      const paginaItems = resultadoFiltrado.slice(inicio, inicio + ITEMS_POR_PAGINA);
 
       const contenedor = document.getElementById('catalogo');
       const fragmento = document.createDocumentFragment();
-      resultado.forEach(s => fragmento.appendChild(tarjetasPorId.get(s.ratingKey)));
+      paginaItems.forEach(s => fragmento.appendChild(tarjetasPorId.get(s.ratingKey)));
       contenedor.innerHTML = "";
       contenedor.appendChild(fragmento);
 
-      document.getElementById('sin-resultados').style.display = resultado.length ? 'none' : 'block';
+      document.getElementById('sin-resultados').style.display = totalItems ? 'none' : 'block';
       document.getElementById('contador').textContent =
-        resultado.length === series.length
+        totalItems === series.length
           ? `${series.length} series`
-          : `${resultado.length} de ${series.length} series`;
+          : `${totalItems} de ${series.length} series`;
 
-      actualizarContadorFiltrosActivos();
+      // ---- Controles de paginación ----
+      const paginacion = document.getElementById('paginacion');
+      const infoPagina = document.getElementById('info-pagina');
+      const btnAnterior = document.getElementById('btn-pagina-anterior');
+      const btnSiguiente = document.getElementById('btn-pagina-siguiente');
+
+      if (totalItems === 0) {
+        paginacion.classList.add('oculta');
+      } else {
+        paginacion.classList.remove('oculta');
+        infoPagina.textContent = `Página ${paginaActual} de ${totalPaginas}`;
+        btnAnterior.disabled = paginaActual <= 1;
+        btnSiguiente.disabled = paginaActual >= totalPaginas;
+      }
+    }
+
+    function irAPagina(nuevaPagina) {
+      paginaActual = nuevaPagina;
+      renderizarPagina();
+      document.getElementById('catalogo').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function actualizarContadorFiltrosActivos() {
@@ -783,11 +955,13 @@
     function inicializarControles() {
       document.getElementById('buscador').addEventListener('input', (e) => {
         filtros.texto = e.target.value.trim().toLowerCase();
+        paginaActual = 1;
         aplicarFiltros();
       });
 
       document.getElementById('orden').addEventListener('change', (e) => {
         filtros.orden = e.target.value;
+        paginaActual = 1;
         aplicarFiltros();
       });
 
@@ -797,16 +971,19 @@
 
       document.getElementById('anio-desde').addEventListener('input', (e) => {
         filtros.anioDesde = e.target.value ? parseInt(e.target.value) : null;
+        paginaActual = 1;
         aplicarFiltros();
       });
 
       document.getElementById('anio-hasta').addEventListener('input', (e) => {
         filtros.anioHasta = e.target.value ? parseInt(e.target.value) : null;
+        paginaActual = 1;
         aplicarFiltros();
       });
 
       document.getElementById('filtro-estudio').addEventListener('input', (e) => {
         filtros.estudio = e.target.value.trim().toLowerCase();
+        paginaActual = 1;
         aplicarFiltros();
       });
 
@@ -820,7 +997,17 @@
         document.getElementById('anio-hasta').value = "";
         document.getElementById('filtro-estudio').value = "";
         document.querySelectorAll('.chip-filtro.activo').forEach(c => c.classList.remove('activo'));
+        paginaActual = 1;
         aplicarFiltros();
+      });
+
+      document.getElementById('btn-pagina-anterior').addEventListener('click', () => {
+        if (paginaActual > 1) irAPagina(paginaActual - 1);
+      });
+
+      document.getElementById('btn-pagina-siguiente').addEventListener('click', () => {
+        const totalPaginas = Math.max(1, Math.ceil(resultadoFiltrado.length / ITEMS_POR_PAGINA));
+        if (paginaActual < totalPaginas) irAPagina(paginaActual + 1);
       });
 
       document.getElementById('modal-cerrar').addEventListener('click', cerrarModal);
@@ -849,14 +1036,10 @@
 
       series = datos.filter(s => s.type === "show" && s.title);
 
-      const contenedor = document.getElementById('catalogo');
-      const fragmento = document.createDocumentFragment();
       series.forEach(s => {
         const tarjeta = crearTarjeta(s);
         tarjetasPorId.set(s.ratingKey, tarjeta);
-        fragmento.appendChild(tarjeta);
       });
-      contenedor.appendChild(fragmento);
 
       inicializarFiltrosDinamicos();
       aplicarFiltros();
