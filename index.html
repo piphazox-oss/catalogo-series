@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo Series</title>
+
+  <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+
+  <style>
+    :root {
+      --bg-color: #141414;
+      --card-bg: #1f1f24;
+      --panel-bg: #191b1f;
+      --accent-color: #00e676;
+      --text-color: #ffffff;
+      --muted-color: #9a9a9a;
+      --border-color: #2c2f36;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 8px;
+      color: var(--accent-color);
+    }
+
+    .subtitulo {
+      text-align: center;
+      color: var(--muted-color);
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+
+    /* ---------- Barra superior: búsqueda + orden ---------- */
+    .barra-superior {
+      max-width: 1300px;
+      margin: 0 auto 14px auto;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    #buscador {
+      flex: 1 1 320px;
+      max-width: 420px;
+      padding: 10px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      font-size: 0.95rem;
+    }
+
+    #buscador:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+
+    #orden {
+      padding: 10px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    #boton-filtros {
+      padding: 10px 16px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #boton-filtros:hover,
+    #orden:hover {
+      border-color: var(--accent-color);
+    }
+
+    #boton-filtros .contador-activos {
+      background-color: var(--accent-color);
+      color: #06210f;
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 1px 7px;
+      border-radius: 10px;
+      display: none;
+    }
+
+    /* ---------- Panel de filtros ---------- */
+    #panel-filtros {
+      max-width: 1300px;
+      margin: 0 auto 20px auto;
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 18px 22px;
+      display: none;
+      gap: 22px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    #panel-filtros.abierto {
+      display: grid;
+    }
+
+    .grupo-filtro h3 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted-color);
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .opciones-filtro {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      max-height: 160px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .chip-filtro {
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      font-size: 0.8rem;
+      cursor: pointer;
+      user-select: none;
+      transition: border-color 0.15s ease, color 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .chip-filtro:hover {
+      border-color: var(--accent-color);
+    }
+
+    .chip-filtro.activo {
+      background-color: var(--accent-color);
+      border-color: var(--accent-color);
+      color: #06210f;
+      font-weight: 600;
+    }
+
+    #filtro-estudio {
+      width: 100%;
+      padding: 7px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      font-size: 0.85rem;
+    }
+
+    #filtro-estudio:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+
+    .rango-anio {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted-color);
+      font-size: 0.85rem;
+    }
+
+    .rango-anio input[type="number"] {
+      width: 80px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      font-size: 0.85rem;
+    }
+
+    #limpiar-filtros {
+      align-self: end;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: transparent;
+      color: var(--muted-color);
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    #limpiar-filtros:hover {
+      color: var(--text-color);
+      border-color: var(--text-color);
+    }
+
+    /* ---------- Grilla de series ---------- */
+    .grid-catalogo {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .tarjeta-serie {
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .tarjeta-serie:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 14px rgba(0, 230, 118, 0.2);
+    }
+
+    .tarjeta-serie img {
+      width: 100%;
+      height: 270px;
+      object-fit: cover;
+      background-color: #0d0d0d;
+    }
+
+    .badge-temporadas {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background-color: rgba(20, 20, 20, 0.85);
+      border: 1px solid var(--accent-color);
+      color: var(--accent-color);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .info {
+      padding: 12px;
+      text-align: center;
+    }
+
+    .titulo {
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.3;
+      word-wrap: break-word;
+    }
+
+    .anio {
+      font-size: 0.8rem;
+      color: var(--muted-color);
+      margin-top: 4px;
+    }
+
+    #sin-resultados {
+      text-align: center;
+      color: var(--muted-color);
+      margin-top: 40px;
+      display: none;
+    }
+
+    /* ---------- Modal de temporadas ---------- */
+    #modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.85);
+      z-index: 100;
+      overflow-y: auto;
+      padding: 30px 20px;
+    }
+
+    #modal-overlay.abierto {
+      display: block;
+    }
+
+    .modal-contenido {
+      max-width: 1100px;
+      margin: 0 auto;
+      background-color: var(--panel-bg);
+      border: 1px solid var(--accent-color);
+      border-radius: 10px;
+      padding: 28px;
+      position: relative;
+    }
+
+    .modal-cerrar {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      background: transparent;
+      border: none;
+      color: var(--accent-color);
+      font-size: 1.8rem;
+      cursor: pointer;
+      line-height: 1;
+      font-weight: 700;
+    }
+
+    .modal-cerrar:hover {
+      color: #ffffff;
+    }
+
+    .modal-header {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .modal-poster {
+      width: 160px;
+      height: 240px;
+      object-fit: cover;
+      border-radius: 6px;
+      flex-shrink: 0;
+      background-color: #0d0d0d;
+    }
+
+    .modal-info {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .modal-titulo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent-color);
+      margin-bottom: 8px;
+    }
+
+    .modal-meta {
+      font-size: 0.85rem;
+      color: var(--muted-color);
+      margin-bottom: 12px;
+    }
+
+    .modal-summary {
+      font-size: 0.85rem;
+      color: var(--text-color);
+      line-height: 1.5;
+    }
+
+    .modal-temporadas-titulo {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-color);
+      font-weight: 700;
+      margin-bottom: 14px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 20px;
+    }
+
+    .grid-temporadas {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 16px;
+    }
+
+    .tarjeta-temporada img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 6px;
+      background-color: #0d0d0d;
+      border: 1px solid var(--border-color);
+    }
+
+    .tarjeta-temporada p {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted-color);
+      margin-top: 6px;
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .modal-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Catálogo de Series</h1>
+  <p class="subtitulo" id="contador">Cargando catálogo…</p>
+
+  <div class="barra-superior">
+    <input type="text" id="buscador" placeholder="Buscar serie por título o año…">
+
+    <button id="boton-filtros" type="button">
+      Filtros
+      <span class="contador-activos" id="contador-activos">0</span>
+    </button>
+
+    <select id="orden">
+      <option value="titulo-asc">Título (A-Z)</option>
+      <option value="titulo-desc">Título (Z-A)</option>
+      <option value="anio-desc">Año (más nuevo primero)</option>
+      <option value="anio-asc">Año (más antiguo primero)</option>
+      <option value="rating-desc">Calificación (mayor a menor)</option>
+      <option value="temporadas-desc">Más temporadas</option>
+      <option value="agregado-desc">Agregado recientemente</option>
+    </select>
+  </div>
+
+  <div id="panel-filtros">
+    <div class="grupo-filtro">
+      <h3>Año</h3>
+      <div class="rango-anio">
+        <input type="number" id="anio-desde" placeholder="Desde">
+        <span>—</span>
+        <input type="number" id="anio-hasta" placeholder="Hasta">
+      </div>
+    </div>
+
+    <div class="grupo-filtro">
+      <h3>Clasificación</h3>
+      <div class="opciones-filtro" id="opciones-clasificacion"></div>
+    </div>
+
+    <div class="grupo-filtro">
+      <h3>Resolución</h3>
+      <div class="opciones-filtro" id="opciones-resolucion"></div>
+    </div>
+
+    <div class="grupo-filtro">
+      <h3>Estudio / Red</h3>
+      <input type="text" id="filtro-estudio" list="lista-estudios" placeholder="Escribí para buscar…" autocomplete="off">
+      <datalist id="lista-estudios"></datalist>
+    </div>
+
+    <button id="limpiar-filtros" type="button">Limpiar todos los filtros</button>
+  </div>
+
+  <div id="catalogo" class="grid-catalogo"></div>
+  <p id="sin-resultados">No se encontraron series con esos filtros.</p>
+
+  <!-- Modal de temporadas -->
+  <div id="modal-overlay">
+    <div class="modal-contenido">
+      <button class="modal-cerrar" id="modal-cerrar" type="button">&times;</button>
+      <div class="modal-header">
+        <img id="modal-poster" class="modal-poster" src="" alt="">
+        <div class="modal-info">
+          <div class="modal-titulo" id="modal-titulo"></div>
+          <div class="modal-meta" id="modal-meta"></div>
+          <div class="modal-summary" id="modal-summary"></div>
+        </div>
+      </div>
+      <div class="modal-temporadas-titulo">Temporadas</div>
+      <div class="grid-temporadas" id="grid-temporadas"></div>
+    </div>
+  </div>
+
+  <script>
+    const RUTA_JSON = "catalogo.json";
+
+    // Carpeta donde quedaron las imágenes al descomprimir el export de Tautulli.
+    const CARPETA_IMAGENES = ".resources/";
+
+    let series = [];
+    let tarjetasPorId = new Map();
+
+    const filtros = {
+      texto: "",
+      anioDesde: null,
+      anioHasta: null,
+      clasificaciones: new Set(),
+      resoluciones: new Set(),
+      estudio: "",
+      orden: "titulo-asc"
+    };
+
+    // ---------- Fallback SVG local (offline) ----------
+    const svgFallback = (titulo) => {
+      const textoEncoded = encodeURIComponent(titulo.substring(0, 20));
+      return `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='450' viewBox='0 0 300 450'><rect width='100%' height='100%' fill='%231f1f24'/><text x='50%' y='45%' fill='%2300e676' font-family='sans-serif' font-size='18' font-weight='bold' text-anchor='middle'>${textoEncoded}</text><text x='50%' y='55%' fill='%23ffffff' font-family='sans-serif' font-size='14' text-anchor='middle'>Sin Imagen</text></svg>`;
+    };
+
+    function rutaImagen(thumbFile, tituloFallback) {
+      if (!thumbFile) return svgFallback(tituloFallback);
+      return CARPETA_IMAGENES + thumbFile;
+    }
+
+    // La resolución de una serie se toma del primer episodio disponible
+    // (representativo, ya que puede variar entre temporadas/episodios).
+    function resolucionDe(serie) {
+      const primeraTemporada = serie.seasons && serie.seasons[0];
+      const primerEpisodio = primeraTemporada && primeraTemporada.episodes && primeraTemporada.episodes[0];
+      const media = primerEpisodio && primerEpisodio.media && primerEpisodio.media[0];
+      return media ? media.videoResolution : null;
+    }
+
+    function etiquetaResolucion(res) {
+      if (!res) return "Desconocida";
+      if (/^\d+$/.test(res)) return `${res}p`;
+      return res.toUpperCase();
+    }
+
+    // ---------- Construcción de una tarjeta ----------
+    function crearTarjeta(serie) {
+      const tarjeta = document.createElement('div');
+      tarjeta.className = 'tarjeta-serie';
+
+      const fallback = svgFallback(serie.title);
+      const src = rutaImagen(serie.thumbFile, serie.title);
+      const numTemporadas = serie.seasonCount || (serie.seasons ? serie.seasons.length : 0);
+      const etiquetaTemporadas = numTemporadas === 1 ? "1 Temporada" : `${numTemporadas} Temporadas`;
+
+      tarjeta.innerHTML = `
+        <span class="badge-temporadas">${etiquetaTemporadas}</span>
+        <img src="${src}"
+             data-fallback="${fallback}"
+             onerror="this.onerror=null; this.src=this.dataset.fallback;"
+             alt="${serie.title}"
+             loading="lazy">
+        <div class="info">
+          <p class="titulo">${serie.title}</p>
+          <p class="anio">${serie.year || ""}</p>
+        </div>
+      `;
+
+      tarjeta.addEventListener('click', () => abrirModal(serie));
+      return tarjeta;
+    }
+
+    // ---------- Modal de temporadas ----------
+    function abrirModal(serie) {
+      document.getElementById('modal-poster').src = rutaImagen(serie.thumbFile, serie.title);
+      document.getElementById('modal-poster').dataset.fallback = svgFallback(serie.title);
+      document.getElementById('modal-titulo').textContent = serie.title;
+
+      const partesMeta = [];
+      if (serie.year) partesMeta.push(serie.year);
+      if (serie.contentRating) partesMeta.push(serie.contentRating);
+      if (serie.studio) partesMeta.push(serie.studio);
+      document.getElementById('modal-meta').textContent = partesMeta.join(' · ');
+
+      document.getElementById('modal-summary').textContent = serie.summary || "";
+
+      const grid = document.getElementById('grid-temporadas');
+      grid.innerHTML = "";
+      const temporadas = [...(serie.seasons || [])].sort((a, b) => (a.seasonNumber || 0) - (b.seasonNumber || 0));
+
+      temporadas.forEach(temporada => {
+        const src = rutaImagen(temporada.thumbFile, temporada.title);
+        const fallback = svgFallback(temporada.title);
+        const div = document.createElement('div');
+        div.className = 'tarjeta-temporada';
+        div.innerHTML = `
+          <img src="${src}"
+               data-fallback="${fallback}"
+               onerror="this.onerror=null; this.src=this.dataset.fallback;"
+               alt="${temporada.title}"
+               loading="lazy">
+          <p>${temporada.title}</p>
+        `;
+        grid.appendChild(div);
+      });
+
+      document.getElementById('modal-overlay').classList.add('abierto');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function cerrarModal() {
+      document.getElementById('modal-overlay').classList.remove('abierto');
+      document.body.style.overflow = '';
+    }
+
+    // ---------- Construir opciones de filtro dinámicamente ----------
+    function construirChips(contenedorId, valores, set, onCambiar) {
+      const contenedor = document.getElementById(contenedorId);
+      contenedor.innerHTML = "";
+      valores.forEach(valor => {
+        const chip = document.createElement('span');
+        chip.className = 'chip-filtro';
+        chip.textContent = valor.etiqueta;
+        chip.addEventListener('click', () => {
+          if (set.has(valor.clave)) {
+            set.delete(valor.clave);
+            chip.classList.remove('activo');
+          } else {
+            set.add(valor.clave);
+            chip.classList.add('activo');
+          }
+          onCambiar();
+        });
+        contenedor.appendChild(chip);
+      });
+    }
+
+    function inicializarFiltrosDinamicos() {
+      const clasificaciones = [...new Set(series.map(s => s.contentRating).filter(Boolean))]
+        .sort()
+        .map(c => ({ clave: c, etiqueta: c }));
+
+      const resoluciones = [...new Set(series.map(resolucionDe).filter(Boolean))]
+        .sort((a, b) => (parseInt(b) || 0) - (parseInt(a) || 0))
+        .map(r => ({ clave: r, etiqueta: etiquetaResolucion(r) }));
+
+      const estudios = [...new Set(series.map(s => s.studio).filter(Boolean))].sort();
+
+      construirChips('opciones-clasificacion', clasificaciones, filtros.clasificaciones, aplicarFiltros);
+      construirChips('opciones-resolucion', resoluciones, filtros.resoluciones, aplicarFiltros);
+
+      const datalist = document.getElementById('lista-estudios');
+      datalist.innerHTML = estudios.map(e => `<option value="${e}">`).join('');
+    }
+
+    // ---------- Ordenamiento ----------
+    function ordenarSeries(lista) {
+      const copia = [...lista];
+      switch (filtros.orden) {
+        case 'titulo-asc':
+          copia.sort((a, b) => (a.titleSort || a.title).localeCompare(b.titleSort || b.title));
+          break;
+        case 'titulo-desc':
+          copia.sort((a, b) => (b.titleSort || b.title).localeCompare(a.titleSort || a.title));
+          break;
+        case 'anio-desc':
+          copia.sort((a, b) => (b.year || 0) - (a.year || 0));
+          break;
+        case 'anio-asc':
+          copia.sort((a, b) => (a.year || 0) - (b.year || 0));
+          break;
+        case 'rating-desc':
+          copia.sort((a, b) => (b.rating || b.audienceRating || 0) - (a.rating || a.audienceRating || 0));
+          break;
+        case 'temporadas-desc':
+          copia.sort((a, b) => (b.seasonCount || 0) - (a.seasonCount || 0));
+          break;
+        case 'agregado-desc':
+          copia.sort((a, b) => new Date(b.addedAt) - new Date(a.addedAt));
+          break;
+      }
+      return copia;
+    }
+
+    // ---------- Aplicar todos los filtros + orden ----------
+    function aplicarFiltros() {
+      let resultado = series.filter(s => {
+        if (filtros.texto) {
+          const enTitulo = s.title.toLowerCase().includes(filtros.texto);
+          const enAnio = String(s.year || "").includes(filtros.texto);
+          if (!enTitulo && !enAnio) return false;
+        }
+        if (filtros.anioDesde && (!s.year || s.year < filtros.anioDesde)) return false;
+        if (filtros.anioHasta && (!s.year || s.year > filtros.anioHasta)) return false;
+        if (filtros.clasificaciones.size && !filtros.clasificaciones.has(s.contentRating)) return false;
+        if (filtros.resoluciones.size && !filtros.resoluciones.has(resolucionDe(s))) return false;
+        if (filtros.estudio && !(s.studio || "").toLowerCase().includes(filtros.estudio)) return false;
+        return true;
+      });
+
+      resultado = ordenarSeries(resultado);
+
+      const contenedor = document.getElementById('catalogo');
+      const fragmento = document.createDocumentFragment();
+      resultado.forEach(s => fragmento.appendChild(tarjetasPorId.get(s.ratingKey)));
+      contenedor.innerHTML = "";
+      contenedor.appendChild(fragmento);
+
+      document.getElementById('sin-resultados').style.display = resultado.length ? 'none' : 'block';
+      document.getElementById('contador').textContent =
+        resultado.length === series.length
+          ? `${series.length} series`
+          : `${resultado.length} de ${series.length} series`;
+
+      actualizarContadorFiltrosActivos();
+    }
+
+    function actualizarContadorFiltrosActivos() {
+      const total = filtros.clasificaciones.size + filtros.resoluciones.size
+        + (filtros.estudio ? 1 : 0) + (filtros.anioDesde ? 1 : 0) + (filtros.anioHasta ? 1 : 0);
+      const badge = document.getElementById('contador-activos');
+      badge.textContent = total;
+      badge.style.display = total > 0 ? 'inline-block' : 'none';
+    }
+
+    // ---------- Controles de la UI ----------
+    function inicializarControles() {
+      document.getElementById('buscador').addEventListener('input', (e) => {
+        filtros.texto = e.target.value.trim().toLowerCase();
+        aplicarFiltros();
+      });
+
+      document.getElementById('orden').addEventListener('change', (e) => {
+        filtros.orden = e.target.value;
+        aplicarFiltros();
+      });
+
+      document.getElementById('boton-filtros').addEventListener('click', () => {
+        document.getElementById('panel-filtros').classList.toggle('abierto');
+      });
+
+      document.getElementById('anio-desde').addEventListener('input', (e) => {
+        filtros.anioDesde = e.target.value ? parseInt(e.target.value) : null;
+        aplicarFiltros();
+      });
+
+      document.getElementById('anio-hasta').addEventListener('input', (e) => {
+        filtros.anioHasta = e.target.value ? parseInt(e.target.value) : null;
+        aplicarFiltros();
+      });
+
+      document.getElementById('filtro-estudio').addEventListener('input', (e) => {
+        filtros.estudio = e.target.value.trim().toLowerCase();
+        aplicarFiltros();
+      });
+
+      document.getElementById('limpiar-filtros').addEventListener('click', () => {
+        filtros.anioDesde = null;
+        filtros.anioHasta = null;
+        filtros.clasificaciones.clear();
+        filtros.resoluciones.clear();
+        filtros.estudio = "";
+        document.getElementById('anio-desde').value = "";
+        document.getElementById('anio-hasta').value = "";
+        document.getElementById('filtro-estudio').value = "";
+        document.querySelectorAll('.chip-filtro.activo').forEach(c => c.classList.remove('activo'));
+        aplicarFiltros();
+      });
+
+      document.getElementById('modal-cerrar').addEventListener('click', cerrarModal);
+      document.getElementById('modal-overlay').addEventListener('click', (e) => {
+        if (e.target.id === 'modal-overlay') cerrarModal();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') cerrarModal();
+      });
+    }
+
+    // ---------- Carga y construcción del catálogo ----------
+    async function cargarCatalogo() {
+      const contador = document.getElementById('contador');
+
+      let datos;
+      try {
+        const res = await fetch(RUTA_JSON);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        datos = await res.json();
+      } catch (err) {
+        contador.textContent = `No se pudo cargar ${RUTA_JSON}. Verifica que el archivo esté en el mismo repositorio/carpeta que index.html.`;
+        console.error(err);
+        return;
+      }
+
+      series = datos.filter(s => s.type === "show" && s.title);
+
+      const contenedor = document.getElementById('catalogo');
+      const fragmento = document.createDocumentFragment();
+      series.forEach(s => {
+        const tarjeta = crearTarjeta(s);
+        tarjetasPorId.set(s.ratingKey, tarjeta);
+        fragmento.appendChild(tarjeta);
+      });
+      contenedor.appendChild(fragmento);
+
+      inicializarFiltrosDinamicos();
+      aplicarFiltros();
+    }
+
+    inicializarControles();
+    cargarCatalogo();
+  </script>
+
+</body>
+</html>
