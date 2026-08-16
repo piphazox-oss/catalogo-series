@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catálogo Series</title>
+  <title>Catálogo Movies</title>
 
   <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
 
@@ -27,6 +27,13 @@
 
     body {
       background-color: var(--bg-color);
+      background-image:
+        linear-gradient(rgba(10, 5, 5, 0.88), rgba(10, 5, 5, 0.88)),
+        url('https://cdn-images.dzcdn.net/images/cover/c92b99e6b3e5f9e21cca98589575516f/1900x1900-000000-80-0-0.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
       color: var(--text-color);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       padding: 20px;
@@ -109,7 +116,7 @@
       display: none;
     }
 
-    /* ---------- Panel de filtros ---------- */
+    /* ---------- Panel de filtros (estilo Plex) ---------- */
     #panel-filtros {
       max-width: 1300px;
       margin: 0 auto 20px auto;
@@ -217,7 +224,7 @@
       border-color: var(--text-color);
     }
 
-    /* ---------- Grilla de series ---------- */
+    /* ---------- Grilla de películas ---------- */
     .grid-catalogo {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -226,7 +233,7 @@
       margin: 0 auto;
     }
 
-    .tarjeta-serie {
+    .tarjeta-pelicula {
       background-color: var(--card-bg);
       border-radius: 8px;
       overflow: hidden;
@@ -234,37 +241,20 @@
       flex-direction: column;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
-      cursor: pointer;
-      position: relative;
     }
 
-    .tarjeta-serie:hover {
+    .tarjeta-pelicula:hover {
       transform: translateY(-5px);
       box-shadow: 0 6px 14px rgba(0, 230, 118, 0.2);
     }
 
-    .tarjeta-serie img {
+    .tarjeta-pelicula img {
       width: 100%;
       height: auto;
       aspect-ratio: 2 / 3;
       object-fit: cover;
       background-color: #0d0d0d;
       display: block;
-    }
-
-    .badge-temporadas {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background-color: rgba(20, 20, 20, 0.85);
-      border: 1px solid var(--accent-color);
-      color: var(--accent-color);
-      font-size: 0.65rem;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 3px;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
     }
 
     .info {
@@ -288,6 +278,67 @@
       margin-top: 4px;
     }
 
+    /* ---------- Responsivo: celulares ---------- */
+    @media (max-width: 640px) {
+      body {
+        padding: 10px;
+      }
+
+      h1 {
+        font-size: 1.35rem;
+      }
+
+      .subtitulo {
+        font-size: 0.8rem;
+      }
+
+      .barra-superior {
+        gap: 8px;
+      }
+
+      #buscador {
+        flex: 1 1 100%;
+        max-width: none;
+      }
+
+      .grid-catalogo {
+        grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
+        gap: 10px;
+      }
+
+      .info {
+        padding: 7px;
+      }
+
+      .titulo {
+        font-size: 0.75rem;
+        line-height: 1.2;
+      }
+
+      .anio {
+        font-size: 0.68rem;
+      }
+
+      .boton-telegram {
+        font-size: 0.65rem;
+        padding: 5px 6px;
+        gap: 4px;
+        margin-top: 6px;
+      }
+
+      .boton-telegram svg {
+        width: 11px;
+        height: 11px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .grid-catalogo {
+        grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+        gap: 8px;
+      }
+    }
+
     /* ---------- Botón de Telegram ---------- */
     .boton-telegram {
       margin-top: 10px;
@@ -304,8 +355,6 @@
       text-decoration: none;
       cursor: pointer;
       transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
-      position: relative;
-      z-index: 2;
     }
 
     .boton-telegram:hover {
@@ -369,224 +418,15 @@
       min-width: 140px;
       text-align: center;
     }
-
-    /* ---------- Modal de temporadas ---------- */
-    #modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background-color: rgba(0, 0, 0, 0.85);
-      z-index: 100;
-      overflow-y: auto;
-      padding: 30px 20px;
-    }
-
-    #modal-overlay.abierto {
-      display: block;
-    }
-
-    .modal-contenido {
-      max-width: 1100px;
-      margin: 0 auto;
-      background-color: var(--panel-bg);
-      border: 1px solid var(--accent-color);
-      border-radius: 10px;
-      padding: 28px;
-      position: relative;
-    }
-
-    .modal-cerrar {
-      position: absolute;
-      top: 14px;
-      right: 18px;
-      background: transparent;
-      border: none;
-      color: var(--accent-color);
-      font-size: 1.8rem;
-      cursor: pointer;
-      line-height: 1;
-      font-weight: 700;
-    }
-
-    .modal-cerrar:hover {
-      color: #ffffff;
-    }
-
-    .modal-header {
-      display: flex;
-      gap: 24px;
-      margin-bottom: 28px;
-      flex-wrap: wrap;
-    }
-
-    .modal-poster {
-      width: 160px;
-      height: 240px;
-      object-fit: cover;
-      border-radius: 6px;
-      flex-shrink: 0;
-      background-color: #0d0d0d;
-    }
-
-    .modal-info {
-      flex: 1;
-      min-width: 220px;
-    }
-
-    .modal-titulo {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--accent-color);
-      margin-bottom: 8px;
-    }
-
-    .modal-meta {
-      font-size: 0.85rem;
-      color: var(--muted-color);
-      margin-bottom: 12px;
-    }
-
-    .modal-summary {
-      font-size: 0.85rem;
-      color: var(--text-color);
-      line-height: 1.5;
-    }
-
-    .modal-boton-telegram {
-      margin-top: 16px;
-    }
-
-    .modal-temporadas-titulo {
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--accent-color);
-      font-weight: 700;
-      margin-bottom: 14px;
-      border-top: 1px solid var(--border-color);
-      padding-top: 20px;
-    }
-
-    .grid-temporadas {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 16px;
-    }
-
-    .tarjeta-temporada img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      border-radius: 6px;
-      background-color: #0d0d0d;
-      border: 1px solid var(--border-color);
-    }
-
-    .tarjeta-temporada p {
-      text-align: center;
-      font-size: 0.75rem;
-      color: var(--muted-color);
-      margin-top: 6px;
-      font-weight: 600;
-    }
-
-    @media (max-width: 768px) {
-      .modal-header {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-      }
-    }
-
-    /* ---------- Responsivo: celulares ---------- */
-    @media (max-width: 640px) {
-      body {
-        padding: 10px;
-      }
-
-      h1 {
-        font-size: 1.35rem;
-      }
-
-      .subtitulo {
-        font-size: 0.8rem;
-      }
-
-      .barra-superior {
-        gap: 8px;
-      }
-
-      #buscador {
-        flex: 1 1 100%;
-        max-width: none;
-      }
-
-      .grid-catalogo {
-        grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
-        gap: 10px;
-      }
-
-      .info {
-        padding: 7px;
-      }
-
-      .titulo {
-        font-size: 0.75rem;
-        line-height: 1.2;
-      }
-
-      .anio {
-        font-size: 0.68rem;
-      }
-
-      .badge-temporadas {
-        font-size: 0.55rem;
-        padding: 2px 6px;
-        top: 5px;
-        right: 5px;
-      }
-
-      .boton-telegram {
-        font-size: 0.65rem;
-        padding: 5px 6px;
-        gap: 4px;
-        margin-top: 6px;
-      }
-
-      .boton-telegram svg {
-        width: 11px;
-        height: 11px;
-      }
-
-      .modal-contenido {
-        padding: 18px;
-      }
-
-      .modal-poster {
-        width: 120px;
-        height: 180px;
-      }
-
-      .modal-titulo {
-        font-size: 1.2rem;
-      }
-    }
-
-    @media (max-width: 400px) {
-      .grid-catalogo {
-        grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
-        gap: 8px;
-      }
-    }
   </style>
 </head>
 <body>
 
-  <h1>Catálogo de Series</h1>
+  <h1>Catálogo de Películas</h1>
   <p class="subtitulo" id="contador">Cargando catálogo…</p>
 
   <div class="barra-superior">
-    <input type="text" id="buscador" placeholder="Buscar serie por título o año…">
+    <input type="text" id="buscador" placeholder="Buscar película por título o año…">
 
     <button id="boton-filtros" type="button">
       Filtros
@@ -599,7 +439,6 @@
       <option value="anio-desc">Año (más nuevo primero)</option>
       <option value="anio-asc">Año (más antiguo primero)</option>
       <option value="rating-desc">Calificación (mayor a menor)</option>
-      <option value="temporadas-desc">Más temporadas</option>
       <option value="agregado-desc">Agregado recientemente</option>
     </select>
   </div>
@@ -625,7 +464,7 @@
     </div>
 
     <div class="grupo-filtro">
-      <h3>Estudio / Red</h3>
+      <h3>Estudio</h3>
       <input type="text" id="filtro-estudio" list="lista-estudios" placeholder="Escribí para buscar…" autocomplete="off">
       <datalist id="lista-estudios"></datalist>
     </div>
@@ -634,7 +473,7 @@
   </div>
 
   <div id="catalogo" class="grid-catalogo"></div>
-  <p id="sin-resultados">No se encontraron series con esos filtros.</p>
+  <p id="sin-resultados">No se encontraron películas con esos filtros.</p>
 
   <div id="paginacion" class="oculta">
     <button class="boton-pagina" id="btn-pagina-anterior" type="button">← Anterior</button>
@@ -642,31 +481,12 @@
     <button class="boton-pagina" id="btn-pagina-siguiente" type="button">Siguiente →</button>
   </div>
 
-  <!-- Modal de temporadas -->
-  <div id="modal-overlay">
-    <div class="modal-contenido">
-      <button class="modal-cerrar" id="modal-cerrar" type="button">&times;</button>
-      <div class="modal-header">
-        <img id="modal-poster" class="modal-poster" src="" alt="">
-        <div class="modal-info">
-          <div class="modal-titulo" id="modal-titulo"></div>
-          <div class="modal-meta" id="modal-meta"></div>
-          <div class="modal-summary" id="modal-summary"></div>
-          <a class="boton-telegram modal-boton-telegram" id="modal-telegram" href="#" target="_blank" rel="noopener noreferrer">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.94 4.11c-.29-.24-.71-.29-1.08-.14L2.4 11.13c-.5.2-.53.9-.04 1.14l4.55 2.28 2.02 6.28c.13.4.65.5.93.18l2.66-3.05 4.6 3.38c.39.29.95.08 1.06-.4l3.86-17.5c.09-.4-.1-.8-.1-.8s-.71-.02-1-.25zM8.6 13.9l9.13-6.62-7.4 7.94-.19 2.63-1.54-3.95z"/></svg>
-            Enviar mensaje
-          </a>
-        </div>
-      </div>
-      <div class="modal-temporadas-titulo">Temporadas</div>
-      <div class="grid-temporadas" id="grid-temporadas"></div>
-    </div>
-  </div>
-
   <script>
     const RUTA_JSON = "catalogo.json";
 
     // Carpeta donde quedaron las imágenes al descomprimir el export de Tautulli.
+    // Tautulli las guarda en una carpeta ".resources" al lado del archivo de datos
+    // (siempre que NO se haya usado "Export Individual Files").
     const CARPETA_IMAGENES = ".resources/";
 
     // Usuario público del bot de Telegram (sin el @). No incluye ningún token:
@@ -675,15 +495,16 @@
     const TELEGRAM_BOT_USERNAME = "melografia_bot";
 
     // Cuántas tarjetas se muestran por página. Pensado para que, al incrustar
-    // el sitio en un iframe (ej. un módulo de Divi), no se rendericen todas
-    // las series de una sola vez.
+    // el sitio en un iframe (ej. un módulo de Divi), no se rendericen las
+    // 1600+ películas de una sola vez.
     const ITEMS_POR_PAGINA = 30;
 
-    let series = [];
+    let peliculas = [];       // todas las películas, tal como vienen del JSON
     let tarjetasPorId = new Map();
     let resultadoFiltrado = []; // resultado actual (filtrado + ordenado), sin paginar
     let paginaActual = 1;
 
+    // Estado de los filtros activos
     const filtros = {
       texto: "",
       anioDesde: null,
@@ -700,112 +521,56 @@
       return `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='450' viewBox='0 0 300 450'><rect width='100%' height='100%' fill='%231f1f24'/><text x='50%' y='45%' fill='%2300e676' font-family='sans-serif' font-size='18' font-weight='bold' text-anchor='middle'>${textoEncoded}</text><text x='50%' y='55%' fill='%23ffffff' font-family='sans-serif' font-size='14' text-anchor='middle'>Sin Imagen</text></svg>`;
     };
 
-    function rutaImagen(thumbFile, tituloFallback) {
-      if (!thumbFile) return svgFallback(tituloFallback);
-      return CARPETA_IMAGENES + thumbFile;
+    // ---------- Resolver la ruta de la imagen local ----------
+    function rutaPoster(pelicula) {
+      if (!pelicula.thumbFile) return svgFallback(pelicula.title);
+      return CARPETA_IMAGENES + pelicula.thumbFile;
     }
 
-    // La resolución de una serie se toma del primer episodio disponible
-    // (representativo, ya que puede variar entre temporadas/episodios).
-    function resolucionDe(serie) {
-      const primeraTemporada = serie.seasons && serie.seasons[0];
-      const primerEpisodio = primeraTemporada && primeraTemporada.episodes && primeraTemporada.episodes[0];
-      const media = primerEpisodio && primerEpisodio.media && primerEpisodio.media[0];
+    // ---------- Helpers de datos ----------
+    function resolucionDe(pelicula) {
+      const media = pelicula.media && pelicula.media[0];
       return media ? media.videoResolution : null;
     }
 
     function etiquetaResolucion(res) {
       if (!res) return "Desconocida";
-      if (/^\d+$/.test(res)) return `${res}p`;
-      return res.toUpperCase();
+      if (/^\d+$/.test(res)) return `${res}p`; // "1080" -> "1080p"
+      return res.toUpperCase(); // "4k" -> "4K", "sd" -> "SD", "2.7k" -> "2.7K"
     }
 
     // ---------- Link de Telegram con mensaje precargado ----------
-    function enlaceTelegram(serie) {
-      const anio = serie.year ? ` (${serie.year})` : "";
-      const mensaje = `Hola! Te escribo sobre la serie "${serie.title}"${anio}: `;
+    function enlaceTelegram(pelicula) {
+      const anio = pelicula.year ? ` (${pelicula.year})` : "";
+      const mensaje = `Hola! Te escribo sobre la película "${pelicula.title}"${anio}: `;
       return `https://t.me/${TELEGRAM_BOT_USERNAME}?text=${encodeURIComponent(mensaje)}`;
     }
 
     // ---------- Construcción de una tarjeta ----------
-    function crearTarjeta(serie) {
+    function crearTarjeta(pelicula) {
       const tarjeta = document.createElement('div');
-      tarjeta.className = 'tarjeta-serie';
+      tarjeta.className = 'tarjeta-pelicula';
 
-      const fallback = svgFallback(serie.title);
-      const src = rutaImagen(serie.thumbFile, serie.title);
-      const numTemporadas = serie.seasonCount || (serie.seasons ? serie.seasons.length : 0);
-      const etiquetaTemporadas = numTemporadas === 1 ? "1 Temporada" : `${numTemporadas} Temporadas`;
-      const linkTelegram = enlaceTelegram(serie);
+      const fallback = svgFallback(pelicula.title);
+      const src = rutaPoster(pelicula);
+      const linkTelegram = enlaceTelegram(pelicula);
 
       tarjeta.innerHTML = `
-        <span class="badge-temporadas">${etiquetaTemporadas}</span>
         <img src="${src}"
              data-fallback="${fallback}"
              onerror="this.onerror=null; this.src=this.dataset.fallback;"
-             alt="${serie.title}"
+             alt="${pelicula.title}"
              loading="lazy">
         <div class="info">
-          <p class="titulo">${serie.title}</p>
-          <p class="anio">${serie.year || ""}</p>
+          <p class="titulo">${pelicula.title}</p>
+          <p class="anio">${pelicula.year || ""}</p>
           <a class="boton-telegram" href="${linkTelegram}" target="_blank" rel="noopener noreferrer">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.94 4.11c-.29-.24-.71-.29-1.08-.14L2.4 11.13c-.5.2-.53.9-.04 1.14l4.55 2.28 2.02 6.28c.13.4.65.5.93.18l2.66-3.05 4.6 3.38c.39.29.95.08 1.06-.4l3.86-17.5c.09-.4-.1-.8-.1-.8s-.71-.02-1-.25zM8.6 13.9l9.13-6.62-7.4 7.94-.19 2.63-1.54-3.95z"/></svg>
             Enviar mensaje
           </a>
         </div>
       `;
-
-      // El botón de Telegram no debe disparar la apertura del modal.
-      tarjeta.querySelector('.boton-telegram').addEventListener('click', (e) => {
-        e.stopPropagation();
-      });
-
-      tarjeta.addEventListener('click', () => abrirModal(serie));
       return tarjeta;
-    }
-
-    // ---------- Modal de temporadas ----------
-    function abrirModal(serie) {
-      document.getElementById('modal-poster').src = rutaImagen(serie.thumbFile, serie.title);
-      document.getElementById('modal-poster').dataset.fallback = svgFallback(serie.title);
-      document.getElementById('modal-titulo').textContent = serie.title;
-
-      const partesMeta = [];
-      if (serie.year) partesMeta.push(serie.year);
-      if (serie.contentRating) partesMeta.push(serie.contentRating);
-      if (serie.studio) partesMeta.push(serie.studio);
-      document.getElementById('modal-meta').textContent = partesMeta.join(' · ');
-
-      document.getElementById('modal-summary').textContent = serie.summary || "";
-      document.getElementById('modal-telegram').href = enlaceTelegram(serie);
-
-      const grid = document.getElementById('grid-temporadas');
-      grid.innerHTML = "";
-      const temporadas = [...(serie.seasons || [])].sort((a, b) => (a.seasonNumber || 0) - (b.seasonNumber || 0));
-
-      temporadas.forEach(temporada => {
-        const src = rutaImagen(temporada.thumbFile, temporada.title);
-        const fallback = svgFallback(temporada.title);
-        const div = document.createElement('div');
-        div.className = 'tarjeta-temporada';
-        div.innerHTML = `
-          <img src="${src}"
-               data-fallback="${fallback}"
-               onerror="this.onerror=null; this.src=this.dataset.fallback;"
-               alt="${temporada.title}"
-               loading="lazy">
-          <p>${temporada.title}</p>
-        `;
-        grid.appendChild(div);
-      });
-
-      document.getElementById('modal-overlay').classList.add('abierto');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function cerrarModal() {
-      document.getElementById('modal-overlay').classList.remove('abierto');
-      document.body.style.overflow = '';
     }
 
     // ---------- Construir opciones de filtro dinámicamente ----------
@@ -831,15 +596,15 @@
     }
 
     function inicializarFiltrosDinamicos() {
-      const clasificaciones = [...new Set(series.map(s => s.contentRating).filter(Boolean))]
+      const clasificaciones = [...new Set(peliculas.map(p => p.contentRating).filter(Boolean))]
         .sort()
         .map(c => ({ clave: c, etiqueta: c }));
 
-      const resoluciones = [...new Set(series.map(resolucionDe).filter(Boolean))]
+      const resoluciones = [...new Set(peliculas.map(resolucionDe).filter(Boolean))]
         .sort((a, b) => (parseInt(b) || 0) - (parseInt(a) || 0))
         .map(r => ({ clave: r, etiqueta: etiquetaResolucion(r) }));
 
-      const estudios = [...new Set(series.map(s => s.studio).filter(Boolean))].sort();
+      const estudios = [...new Set(peliculas.map(p => p.studio).filter(Boolean))].sort();
 
       construirChips('opciones-clasificacion', clasificaciones, filtros.clasificaciones, () => { paginaActual = 1; aplicarFiltros(); });
       construirChips('opciones-resolucion', resoluciones, filtros.resoluciones, () => { paginaActual = 1; aplicarFiltros(); });
@@ -849,7 +614,7 @@
     }
 
     // ---------- Ordenamiento ----------
-    function ordenarSeries(lista) {
+    function ordenarPeliculas(lista) {
       const copia = [...lista];
       switch (filtros.orden) {
         case 'titulo-asc':
@@ -867,9 +632,6 @@
         case 'rating-desc':
           copia.sort((a, b) => (b.rating || b.audienceRating || 0) - (a.rating || a.audienceRating || 0));
           break;
-        case 'temporadas-desc':
-          copia.sort((a, b) => (b.seasonCount || 0) - (a.seasonCount || 0));
-          break;
         case 'agregado-desc':
           copia.sort((a, b) => new Date(b.addedAt) - new Date(a.addedAt));
           break;
@@ -879,21 +641,21 @@
 
     // ---------- Aplicar todos los filtros + orden (recalcula el set completo) ----------
     function aplicarFiltros() {
-      let resultado = series.filter(s => {
+      let resultado = peliculas.filter(p => {
         if (filtros.texto) {
-          const enTitulo = s.title.toLowerCase().includes(filtros.texto);
-          const enAnio = String(s.year || "").includes(filtros.texto);
+          const enTitulo = p.title.toLowerCase().includes(filtros.texto);
+          const enAnio = String(p.year || "").includes(filtros.texto);
           if (!enTitulo && !enAnio) return false;
         }
-        if (filtros.anioDesde && (!s.year || s.year < filtros.anioDesde)) return false;
-        if (filtros.anioHasta && (!s.year || s.year > filtros.anioHasta)) return false;
-        if (filtros.clasificaciones.size && !filtros.clasificaciones.has(s.contentRating)) return false;
-        if (filtros.resoluciones.size && !filtros.resoluciones.has(resolucionDe(s))) return false;
-        if (filtros.estudio && !(s.studio || "").toLowerCase().includes(filtros.estudio)) return false;
+        if (filtros.anioDesde && (!p.year || p.year < filtros.anioDesde)) return false;
+        if (filtros.anioHasta && (!p.year || p.year > filtros.anioHasta)) return false;
+        if (filtros.clasificaciones.size && !filtros.clasificaciones.has(p.contentRating)) return false;
+        if (filtros.resoluciones.size && !filtros.resoluciones.has(resolucionDe(p))) return false;
+        if (filtros.estudio && !(p.studio || "").toLowerCase().includes(filtros.estudio)) return false;
         return true;
       });
 
-      resultadoFiltrado = ordenarSeries(resultado);
+      resultadoFiltrado = ordenarPeliculas(resultado);
       renderizarPagina();
       actualizarContadorFiltrosActivos();
     }
@@ -911,15 +673,15 @@
 
       const contenedor = document.getElementById('catalogo');
       const fragmento = document.createDocumentFragment();
-      paginaItems.forEach(s => fragmento.appendChild(tarjetasPorId.get(s.ratingKey)));
+      paginaItems.forEach(p => fragmento.appendChild(tarjetasPorId.get(p.ratingKey)));
       contenedor.innerHTML = "";
       contenedor.appendChild(fragmento);
 
       document.getElementById('sin-resultados').style.display = totalItems ? 'none' : 'block';
       document.getElementById('contador').textContent =
-        totalItems === series.length
-          ? `${series.length} series`
-          : `${totalItems} de ${series.length} series`;
+        totalItems === peliculas.length
+          ? `${peliculas.length} películas`
+          : `${totalItems} de ${peliculas.length} películas`;
 
       // ---- Controles de paginación ----
       const paginacion = document.getElementById('paginacion');
@@ -940,6 +702,8 @@
     function irAPagina(nuevaPagina) {
       paginaActual = nuevaPagina;
       renderizarPagina();
+      // Al cambiar de página, llevamos la vista al inicio del catálogo
+      // (útil sobre todo cuando el sitio está incrustado en un iframe).
       document.getElementById('catalogo').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
@@ -1009,14 +773,6 @@
         const totalPaginas = Math.max(1, Math.ceil(resultadoFiltrado.length / ITEMS_POR_PAGINA));
         if (paginaActual < totalPaginas) irAPagina(paginaActual + 1);
       });
-
-      document.getElementById('modal-cerrar').addEventListener('click', cerrarModal);
-      document.getElementById('modal-overlay').addEventListener('click', (e) => {
-        if (e.target.id === 'modal-overlay') cerrarModal();
-      });
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') cerrarModal();
-      });
     }
 
     // ---------- Carga y construcción del catálogo ----------
@@ -1034,11 +790,13 @@
         return;
       }
 
-      series = datos.filter(s => s.type === "show" && s.title);
+      peliculas = datos.filter(p => p.type === "movie" && p.title);
 
-      series.forEach(s => {
-        const tarjeta = crearTarjeta(s);
-        tarjetasPorId.set(s.ratingKey, tarjeta);
+      // Creamos todas las tarjetas una sola vez (quedan en memoria), pero
+      // solo se insertan en el DOM las de la página actual en cada momento.
+      peliculas.forEach(p => {
+        const tarjeta = crearTarjeta(p);
+        tarjetasPorId.set(p.ratingKey, tarjeta);
       });
 
       inicializarFiltrosDinamicos();
