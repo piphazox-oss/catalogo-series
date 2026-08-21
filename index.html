@@ -8,7 +8,7 @@
   <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -42,7 +42,7 @@
       padding: 20px;
     }
 
-h1 {
+    h1 {
       text-align: center;
       margin-bottom: 8px;
       color: #d3ff00;
@@ -53,20 +53,16 @@ h1 {
 
     .subtitulo-fijo {
       text-align: center;
-      color: #ffffff;
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 600;
-      font-size: 22px;
+      color: var(--muted-color);
       margin-bottom: 4px;
+      font-size: 0.9rem;
     }
 
     .subtitulo {
       text-align: center;
-      color: #ffffff;
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 600;
-      font-size: 22px;
+      color: var(--muted-color);
       margin-bottom: 20px;
+      font-size: 0.9rem;
     }
 
     /* ---------- Barra superior: búsqueda + orden ---------- */
@@ -532,9 +528,8 @@ h1 {
         font-size: 1.35rem;
       }
 
-.subtitulo-fijo,
       .subtitulo {
-        font-size: 1rem;
+        font-size: 0.8rem;
       }
 
       .barra-superior {
@@ -608,12 +603,12 @@ h1 {
 <body>
 
   <h1>CATÁLOGO SERIES</h1>
-<p class="subtitulo-fijo">Acá encontraras todo el catalógo de series disponibles que tenemos en melografía.cl</p>
-<p class="subtitulo" id="contador">Cargando catálogo…</p>
+  <p class="subtitulo-fijo">Acá encontraras todo el catalógo de series disponibles que tenemos en melografía.cl</p>
+  <p class="subtitulo" id="contador">Cargando catálogo…</p>
 
   <div class="barra-superior">
     <input type="text" id="buscador" placeholder="Buscar serie por título o año…">
-    
+
     <button id="boton-filtros" type="button">
       Filtros
       <span class="contador-activos" id="contador-activos">0</span>
@@ -693,7 +688,7 @@ h1 {
     const RUTA_JSON = "catalogo.json";
 
     // Carpeta donde quedaron las imágenes al descomprimir el export de Tautulli.
-    const CARPETA_IMAGENES = ".resources/";
+    const CARPETA_IMAGENES = "https://catalogo-imagenes.plexmedia.store/catalogo-imagenes/";
 
     // Usuario público del bot de Telegram (sin el @). No incluye ningún token:
     // el link solo abre una conversación con el mensaje precargado, y es el
