@@ -745,7 +745,7 @@
     function enlaceTelegram(serie) {
       const anio = serie.year ? ` (${serie.year})` : "";
       const mensaje = `Hola! Te escribo sobre la serie "${serie.title}"${anio}: `;
-      return `https://t.me/${TELEGRAM_BOT_USERNAME}?text=${encodeURIComponent(mensaje)}`;
+      return `https://t.me/${TELEGRAM_BOT_USERNAME}?start=series&text=${encodeURIComponent(mensaje)}`;
     }
 
     // ---------- Construcción de una tarjeta ----------
